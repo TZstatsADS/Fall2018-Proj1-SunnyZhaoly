@@ -3,7 +3,6 @@ title: "What's the difference of happy moments for different marital status?"
 output:
   html_document: default
   html_notebook: default
-  pdf_document: default
 ---
 
 ![](/Users/SunnyZhao/Documents/GitHub/Fall2018-Proj1-SunnyZhaoly/figs/twostatus.jpg)
