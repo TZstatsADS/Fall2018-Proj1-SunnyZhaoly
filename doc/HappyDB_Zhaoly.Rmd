@@ -238,7 +238,7 @@ colnames(words_table)<-c("Single male","Single female","Married male","Married f
 words_table
 ```
 
-Here we notice that "video game" and "watched movie" are always important for male, no matter single or married. Also, "ice cream" can always create happy moments for all of people. 
+Here we notice that "video game" and "watched movie" are always important for male, no matter single or married. However, there appears "dinner wife". Acturally, male is also attach importance to their family. For female, the high frequency of words changes a lot. We find some new words, "husband home", "dinner night", "husband dinner" and "dinner family". It shows us female really pay more attention on their family as we think. Also, here is one interesting thing: "ice cream" can always create happy moments for all of people. 
 
 ### Does family bring more happy moments to married male or married female? 
 
@@ -330,7 +330,7 @@ p<-subplot(p1,p2) %>%
 p
 ```
 
-From above, we can see that marital status does not change male too much. We notice two things for male: firstly, the frequency of "watched movie" is decreased from 126 to 69. Secondly, more happy moments come from dinner and family. Compared with single female status, the words like "family" and "dinner" come out more often. Since in the general traditional family, we always think female pay more attention on family, husband and kids. And male focus more on work and job. 
+From above, we can see that marital status does not change male too much. We notice two things: firstly, the frequency of "watched movie" is decreased from 126 to 69 but it is increased for female. Secondly, more happy moments come from dinner and family. For single female status, the words like "family" and "dinner" are not coming out often. But they're become high requency words in their happy moments after marriage. It's clearly show us: people will take different responsibility and different role in different period. Finally, ice cream is really powerful! 
 
 But here, we also notice one intersting thing: the frequency of "dinner family" is decreased after male married but for female is clearly increased. Why? Maybe next time when you take dinner with your parents, you can ask your father whether he feel happiness or not. (Be care, do not let your mother hear the question.)
 
