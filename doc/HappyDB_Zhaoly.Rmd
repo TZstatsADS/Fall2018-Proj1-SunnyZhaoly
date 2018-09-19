@@ -132,7 +132,7 @@ wordcloud2(word_count_single[1:100,],color = "random-light",  backgroundColor = 
 #letterCloud(word_count_single, word = 'S',size=3,color = "random-light", backgroundColor = 'grey')
 ```
 
-Here, we can find that the top 5 words appeared on single people's happy moments are different with married people. For single status, the top 5 words are: friend, time, day, watched and played. For married status, the top 5 words are: time, day, friend, son and husband. This can show us: when we're single, we have more freedom and time to do things what we want to do. After marriage, we focus on family and kids since we have difference responsibility and play a different role compared before. We also think about, from single to married, does the happy moment in last 24h for male change a lot or female change a lot?
+Here, we can find that the top 5 words appeared on single people's happy moments are different with married people. For single status, the top 5 words are: friend, time, day, watched and played. For married status, the top 5 words are: time, day, friend, son and husband. This can show us: when we're single, we have more freedom and time to do things what we want to do. After marriage, we focus on family and kids since we have difference responsibility and play a different role compared before. We also think about, from single to married, does the happy moment in last 24h for male change a lot or for female change a lot?
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 
@@ -228,7 +228,7 @@ colnames(bi_status)<-c("y","x1","x2","x3","x4")
 bi_status<-as.data.frame(bi_status)
 ```
 
-### What are the changes of high frequency works in their hammpy moments?
+### What are the changes of high frequency works in their happy moments?
 
 In this part, I want to know whether marriage can bring more happy moments to male or female. So here, I check the top 10 high frequency words came from their happy moments and list them in the following table:
 
