@@ -75,7 +75,7 @@ Here I show you the specific text about happy moments. And we will find interest
 datatable(hm_data)
 ```
 
-Notice there are sentences in text. So I need to seperate each text into words and use the bag ("bag_of_words") to store words, which is convenience for me to make text mining. 
+Notice there are sentences in text. So I need to separate each text into words and use the bag ("bag_of_words") to store words, which is convenience for me to make text mining. 
 
 ```{r bag of words, warning=FALSE, message=FALSE}
 bag_of_words <-  hm_data %>%
@@ -227,7 +227,7 @@ colnames(bi_status)<-c("y","x1","x2","x3","x4")
 bi_status<-as.data.frame(bi_status)
 ```
 
-### What are the changes of high frequency works in their happy moments?
+### What are the changes of high frequency words in their happy moments?
 
 In this part, I want to know whether marriage can bring more happy moments to male or female. So here, I check the top 10 high frequency words came from their happy moments and list them in the following table:
 
@@ -338,17 +338,17 @@ But here, we also notice one intersting thing: the frequency of "dinner family" 
 
 ![](/Users/SunnyZhao/Documents/GitHub/Fall2018-Proj1-SunnyZhaoly/figs/happymoments.jpg)
 
-By analyzing the happy moments from people with different marital status,we should get the following results:
+By analyzing the happy moments from people with different marital status, we should get the following results:
 
-● When we are single, we think "friend","game","home" and "dog" can create more happy moments for us;
+● When we are single, we think "friend", "game", "home" and "dog" can create more happy moments for us;
 
 ● When we get married, family, husband/wife or kids will create more happy moments for us;
 
 ● No matter married or single, "friend", "ice cream" and "watch movie" are always important;
 
-● Happy moments for male changed a little from single to married. The most happy moments come from "watched movie", "video game". Family also bring more happy moments for married male, even though the incresment is not significant;
+● Happy moments for male changed a little from single to married. The most happy moments come from "watched movie", "video game". Family also bring more happy moments for married male, even though the increment is not significant;
 
-● Happy moments for felmale changed a lot from single to married. The most happy moments are changed from "watch movie", "summer vocation" to high frequency of "husband" as well as "family". 
+● Happy moments for female changed a lot from single to married. The most happy moments are changed from "watch movie", "summer vocation" to high frequency of "husband" as well as "family". 
 
 
 
