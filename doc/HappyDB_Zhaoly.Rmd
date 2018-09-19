@@ -333,13 +333,13 @@ p
 
 From above, we can see that marital status does not change male too much. We notice two things for male: firstly, the frequency of "watched movie" is decreased from 126 to 69. Secondly, more happy moments come from dinner and family. Compared with single female status, the words like "family" and "dinner" come out more often. Since in the general traditional family, we always think female pay more attention on family, husband and kids. And male focus more on work and job. 
 
-But here, we also notice one intersting thing: the frequency of "dinner family" is decreased after male married but female is clearly increased. Why? Maybe next time when you take dinner with your parents, you can ask your father whether he feel happiness or not. (Be care, do not let your mother hear the question.)
+But here, we also notice one intersting thing: the frequency of "dinner family" is decreased after male married but for female is clearly increased. Why? Maybe next time when you take dinner with your parents, you can ask your father whether he feel happiness or not. (Be care, do not let your mother hear the question.)
 
 ###Summary
 
 ![](/Users/SunnyZhao/Documents/GitHub/Fall2018-Proj1-SunnyZhaoly/figs/happymoments.jpg)
 
-By analyzing the happy moments from different people,we should get the following results:
+By analyzing the happy moments from people with different marital status,we should get the following results:
 
 ● When we are single, we think "friend","game","home" and "dog" can create more happy moments for us;
 

@@ -316,4 +316,11 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-
+```{r, echo=FALSE}
+readImage<-readJPEG("~/Desktop/happymoments.jpg", native=FALSE)
+longImage<-melt(readImage)
+rgbImage<-reshape(longImage,timevar='X3',idvar=c('X1','X2'),direction='wide')
+rgbImage$X1<- -rgbImage$X1
+colorColumns<- rgbImage[, substr(colnames(rgbImage), 1, 5)== "value"]
+with(rgbImage,plot(X2, X1, col = rgb(colorColumns), asp = 1, pch =".",axes=F,xlab='',ylab=''))
+```
