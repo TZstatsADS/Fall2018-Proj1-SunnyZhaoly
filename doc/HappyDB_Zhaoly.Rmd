@@ -1,5 +1,5 @@
 ---
-title: "What's difference of happy moments for different maritial status?"
+title: "What's the difference of happy moments for different maritial status?"
 output:
   html_document: default
   html_notebook: default
