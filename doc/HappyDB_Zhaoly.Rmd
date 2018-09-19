@@ -1,0 +1,360 @@
+---
+title: "What's difference of happy moments for different maritial status?"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+![](/Users/SunnyZhao/Documents/GitHub/Fall2018-Proj1-SunnyZhaoly/figs/twostatus.jpg)
+
+### Step 0 - Load all the required libraries
+
+I install all packages and load all required libraried. This notebook is prepared for the text mining. 
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidytext)
+library(DT)
+library(scales)
+library(wordcloud)
+library(wordcloud2)
+library(gridExtra)
+library(ngram)
+library(shiny) 
+library(dplyr)
+library(ggplot2)
+library(wordcloud2)
+library(jpeg)
+library(reshape)
+library(plotly)
+```
+
+
+In the last 24 hours, lots of things can make us feel happy. For example, parents feel happy when their chindren get dinner with them. Young people feel happy when they play game with friends. We may think happy moments may be changed for people in performing different roles in different phases. However, is it true for most of people? Whether there is a certain kind of things can permanently make people happy? In here, I focus on two types of people, married and single. Let's find it out by analyzing happy moments from these two clusters! 
+
+
+### Step 1 - Load the processed text data along with demographic information on contributors
+
+###How about their happy monments? 
+
+First of all, we need to clean all of our past stored datasets. And then, I import our datasets: processed_moment.csv and urlfile. 
+
+```{r,warning=FALSE, message=FALSE}
+rm(list=ls())
+hm_data <- read.csv("/Users/SunnyZhao/Documents/GitHub/Fall2018-Proj1-SunnyZhaoly/output/processed_moments.csv")
+
+urlfile<-'https://raw.githubusercontent.com/rit-public/HappyDB/master/happydb/data/demographic.csv'
+demo_data <- read.csv(urlfile)
+```
+
+After imported, I need to combine both the data sets and keep the required columns for analysis. For here, I only keep columns that I will use in the following parts, like "cleaned_hm", "predicted_category" and "text".
+
+```{r, warning=FALSE, message=FALSE}
+hm_data <- hm_data %>%
+  inner_join(demo_data, by = "wid") %>%
+  select(wid,
+         cleaned_hm,
+         gender, 
+         marital, 
+         reflection_period,
+         age, 
+         predicted_category, 
+         text) %>%
+  filter(gender %in% c("m", "f")) %>%
+  filter(marital %in% c("single", "married")) %>%
+  filter(reflection_period %in% "24h") %>%
+  mutate(reflection_period = fct_recode(reflection_period, hours_24 = "24h"))
+
+#hm_data$text
+hm_data$text<-as.character(hm_data$text)
+```
+
+Here I show you the specific text about happy moments. And we will find interesting things from these happy moments. 
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+datatable(hm_data)
+```
+
+Notice there are sentences in text. So I need to seperate each text into words and use the bag ("bag_of_words") to store words, which is convenience for me to make text mining. 
+
+```{r bag of words, warning=FALSE, message=FALSE}
+bag_of_words <-  hm_data %>%
+  unnest_tokens(word, text)
+
+word_count <- bag_of_words %>%
+  count(word, sort = TRUE)
+```
+
+I want to check what's the difference of happy moments between married people and single people. So I need to classify oringal data into two clusters-married and single. Then I check the frequency of each words appared in each cluster. 
+
+```{r classify into three parts, warning=FALSE, message=FALSE}
+married_people<-hm_data%>%
+  filter(marital %in% "married")
+bag_of_words_married <-  married_people %>%
+  unnest_tokens(word, text)
+word_count_married <- bag_of_words_married %>%
+  count(word, sort = TRUE)
+
+single_people<-hm_data%>%
+  filter(marital %in% "single")
+bag_of_words_single <-  single_people %>%
+  unnest_tokens(word, text)
+word_count_single <- bag_of_words_single %>%
+  count(word, sort = TRUE)
+
+```
+
+###What are the moments making they feel happy? 
+
+Here, I use word cloud to represent married and single people. 
+
+For married status: 
+```{r married cluster, warning=FALSE, message=FALSE, echo=FALSE}
+#wordcloud2(word_count_married[1:1000,],color = "random-light",figPath = '~/Desktop/house.png', backgroundColor = 'grey')
+
+#wordcloud2(word_count_single[1:1000,],color = "random-light", figPath = '~/Desktop/games.png', backgroundColor = 'grey')
+
+wordcloud2(word_count_married[1:100,],color = "random-light", backgroundColor = 'grey')
+
+#wordcloud(words = word_count_married$word[1:1000], freq = word_count_married$n)
+
+#wordcloud(words = word_count_single$word[1:1000], freq = word_count_single$n)
+```
+
+
+For single status: 
+```{r,  echo=FALSE}
+#wordcloud2(word_count_single[1:1000,],color = "random-light", figPath = '~/Desktop/games.png', backgroundColor = 'grey')
+wordcloud2(word_count_single[1:100,],color = "random-light",  backgroundColor = 'grey')
+#wordcloud2(word_count_married[1:1000,], figPath = '~/Desktop/single.jpg', backgroundColor = 'grey', size = 2)
+#letterCloud(word_count_married[1:100,], word = 'M',size=2,color = "random-light", backgroundColor = 'grey')
+#letterCloud(word_count_single, word = 'S',size=3,color = "random-light", backgroundColor = 'grey')
+```
+
+Here, we can find that the top 5 words appeared on single people's happy moments are different with married people. For single status, the top 5 words are: friend, time, day, watched and played. For married status, the top 5 words are: time, day, friend, son and husband. This can show us: when we're single, we have more freedom and time to do things what we want to do. After marriage, we focus on family and kids since we have difference responsibility and play a different role compared before. We also think about, from single to married, does the happy moment in last 24h for male change a lot or female change a lot?
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+
+married_people_male<-hm_data%>%
+  filter(gender %in% "m") %>%
+  filter(marital %in% "married")
+hm_bigrams_married_male <- married_people_male %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+bigram_counts_married_male <- hm_bigrams_married_male %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  count(word1, word2, sort = TRUE)
+bigram_counts_married_male[,1]<-paste(bigram_counts_married_male$word1,bigram_counts_married_male$word2)
+bigram_counts_married_male<-bigram_counts_married_male[-1,-2]
+#bigram_counts_married_male[,3]<-rep("married male",nrow(bigram_counts_married_male))
+
+
+married_people_female<-hm_data%>%
+  filter(gender %in% "f") %>%
+  filter(marital %in% "married")
+hm_bigrams_married_female <- married_people_female %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+bigram_counts_married_female <- hm_bigrams_married_female %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  count(word1, word2, sort = TRUE)
+bigram_counts_married_female[,1]<-paste(bigram_counts_married_female$word1,bigram_counts_married_female$word2)
+bigram_counts_married_female<-bigram_counts_married_female[-1,-2]
+#bigram_counts_married_female[,3]<-rep("married female",nrow(bigram_counts_married_female))
+
+single_people_male<-hm_data%>%
+  filter(gender %in% "m") %>%
+  filter(marital %in% "single")
+hm_bigrams_single_male <- single_people_male %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+bigram_counts_single_male <- hm_bigrams_single_male %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  count(word1, word2, sort = TRUE)
+bigram_counts_single_male[,1]<-paste(bigram_counts_single_male$word1,bigram_counts_single_male$word2)
+bigram_counts_single_male<-bigram_counts_single_male[-1,-2]
+#bigram_counts_single_male[,3]<-rep("single male",nrow(bigram_counts_single_male))
+
+single_people_female<-hm_data%>%
+  filter(gender %in% "f") %>%
+  filter(marital %in% "single")
+hm_bigrams_single_female <- single_people_female %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+bigram_counts_single_female <- hm_bigrams_single_female %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  count(word1, word2, sort = TRUE)
+bigram_counts_single_female[,1]<-paste(bigram_counts_single_female$word1,bigram_counts_single_female$word2)
+bigram_counts_single_female<-bigram_counts_single_female[-1,-2]
+#bigram_counts_single_female[,3]<-rep("single female",nrow(bigram_counts_single_female))
+
+#bigram_counts<-rbind(bigram_counts_married_female[1:15,],bigram_counts_married_male[1:15,],bigram_counts_single_female[1:15,],bigram_counts_single_male[1:15,])
+#colnames(bigram_counts)<-c("word group", "n","status")
+
+bigram_counts_intersect<-intersect(intersect(intersect(bigram_counts_married_female$word1,bigram_counts_married_male$word1),bigram_counts_single_female$word1),bigram_counts_single_male$word1)
+#bigram_counts_intersect[1:25]
+intersect_word<-c( "watched movie","ice cream","read book","dinner night","cooked dinner","dinner family","day school","played game","video game","birthday party","school friend","cleaned house","watched tv","grocery store","told love"    )
+#bi_marriedmale<-bigram_counts_married_male[bigram_counts_married_male$word1=="watched movie",]
+bi_marriedmale<-NA
+for (i in 1:15){
+  bi_marriedmale[i]<-bigram_counts_married_male[bigram_counts_married_male$word1==intersect_word[i],2]
+}
+bi_marriedmale<-as.matrix(bi_marriedmale)
+#bi_marriedmale
+
+bi_marriedfemale<-matrix(nrow = 15,ncol = 1)
+for (i in 1:15){
+  bi_marriedfemale[i]<-bigram_counts_married_female[bigram_counts_married_female$word1==intersect_word[i],2]
+}
+bi_marriedfemale<-as.matrix(bi_marriedfemale)
+#bi_marriedfemale
+
+bi_singlemale<-NA
+for (i in 1:15){
+  bi_singlemale[i]<-bigram_counts_single_male[bigram_counts_single_male$word1==intersect_word[i],2]
+}
+bi_singlemale<-as.matrix(bi_singlemale)
+#bi_singlemale
+
+bi_singlefemale<-NA
+for (i in 1:15){
+  bi_singlefemale[i]<-bigram_counts_single_female[bigram_counts_single_female$word1==intersect_word[i],2]
+}
+bi_singlefemale<-as.matrix(bi_singlefemale)
+#bi_singlefemale
+
+bi_status<-cbind(bi_singlemale,bi_singlefemale,bi_marriedmale,bi_marriedfemale)
+colnames(bi_status)<-c("single male","single female","married male","married female")
+intersect_word<-as.matrix(intersect_word)
+bi_status<-cbind(intersect_word,bi_status)
+colnames(bi_status)<-c("y","x1","x2","x3","x4")
+bi_status<-as.data.frame(bi_status)
+```
+
+### What are the changes of high frequency works in their hammpy moments?
+
+In this part, I want to know whether marriage can bring more happy moments to male or female. So here, I check the top 10 high frequency words came from their happy moments and list them in the following table:
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+words_table<-data.frame()
+words_table<-cbind(bigram_counts_single_male[1:10,1],bigram_counts_single_female[1:10,1],bigram_counts_married_male[1:10,1],bigram_counts_married_female[1:10,1])
+colnames(words_table)<-c("Single male","Single female","Married male","Married female")
+words_table
+```
+
+Here we notice that "video game" and "watched movie" are always important for male, no matter single or married. Also, "ice cream" can always create happy moments for all of people. 
+
+### Does family bring more happy moments to married male or married female? 
+
+In this part, I want to know that family can bring more happy moments to male or to female. I use "ggplot2" and "plotly" package to make data visualization. So here, I check the top 6 high frequency words BOTH came from their happy moments to find interesting things. I compare two status: single male vs. married male and single female vs. married female. 
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+x1<-as.numeric(t(bi_singlemale[1:6]))
+x2<-as.numeric(t(bi_singlefemale[1:6]))
+x3<-as.numeric(t(bi_marriedmale[1:6]))
+x4<-as.numeric(t(bi_marriedfemale[1:6]))
+y<-intersect_word[1:6]
+bi_status1<-data.frame(y,x1,x2)
+bi_status2<-data.frame(y,x3,x4)
+top_lables1<-c("single<br>male","single<br>female")
+top_lables2<-c("married<br>male","married<br>female")
+
+p1 <- plot_ly(bi_status1, x = ~x1, y = ~y, type = 'bar', orientation = 'h',
+        marker = list(color ='rgba(71, 58, 131, 0.8)',
+                      line = list(color = 'rgb(248, 248, 249)', width = 1)), name = "Single<br>male") %>%
+  add_trace(x = ~x2, marker = list(color = 'rgba(246, 58, 139, 0.8)'), name="Single<br>female") %>%
+  layout(xaxis = list(title = "",
+                      showgrid = FALSE,
+                      showline = FALSE,
+                      showticklabels = FALSE,
+                      zeroline = FALSE,
+                      domain = c(0.15, 0.85)),
+         yaxis = list(title = "",
+                      showgrid = FALSE,
+                      showline = FALSE,
+                      showticklabels = FALSE,
+                      zeroline = FALSE),
+         barmode = 'stack',
+         paper_bgcolor = 'rgb(248, 248, 255)', plot_bgcolor = 'rgb(248, 248, 255)',
+         showlegend = TRUE) %>%
+  # labeling the y-axis
+  add_annotations(xref = 'paper', yref = 'y', x = 0.14, y = y,
+                  xanchor = 'right',
+                  text = y,
+                  font = list(family = 'Arial', size = 12,
+                            color = 'rgb(67, 67, 67)'),
+                  showarrow = FALSE, align = 'right')# %>%
+  # labeling the percentages of each bar (x_axis)
+  #add_annotations(xref = 'x', yref = 'y',
+   #               x = x1 / 2, y = y,
+    #              text = bi_status1[,"x1"],
+     #             font = list(family = 'Arial', size = 12,
+      #                      color = 'rgb(248, 248, 255)'),
+       #           showarrow = FALSE) %>%
+  #add_annotations(xref = 'x_1', yref = 'paper',
+   #               x = c(126/2, 126+49/2),
+    #              y = 1.105,
+     #             text = "single",
+      #            font = list(family = 'Arial', size = 13,
+       #                       color = 'rgb(67, 67, 67)'),
+        #          showarrow = FALSE)%>%
+  
+
+p2 <- plot_ly(bi_status2, x = ~x3, y = ~y, type = 'bar', orientation = 'h',
+        marker = list(color =  'rgba(38, 24, 74, 0.8)',
+                      line = list(color = 'rgb(248, 248, 249)', width = 1)), name = "Married<br>male") %>%
+  add_trace(x = ~x4, marker = list(color = 'rgba(246, 78, 139, 0.6)'), name="Married<br>female") %>%
+  layout(xaxis = list(title = "",
+                      showgrid = FALSE,
+                      showline = FALSE,
+                      showticklabels = FALSE,
+                      zeroline = FALSE,
+                      domain = c(0.15, 1.15)),
+         yaxis = list(title = "",
+                      showgrid = FALSE,
+                      showline = FALSE,
+                      showticklabels = FALSE,
+                      zeroline = FALSE),
+         barmode = 'stack',
+         paper_bgcolor = 'rgb(248, 248, 255)', plot_bgcolor = 'rgb(248, 248, 255)',
+         showlegend = TRUE) %>%
+  # labeling the y-axis
+  add_annotations(xref = 'paper', yref = 'y', x = 0.14, y = y,
+                  xanchor = 'right',
+                  text = y,
+                  font = list(family = 'Arial', size = 12,
+                            color = 'rgb(67, 67, 67)'),
+                  showarrow = FALSE, align = 'right') 
+
+p<-subplot(p1,p2) %>%
+  layout( title='   Single                 vs                 Married' ,
+          margin = list(l = 53, r = 0, t = 33, b = 0),
+          legend = list(x = 0.8, y = 0.038,
+                       font = list(size = 10)))
+p
+```
+
+From above, we can see that marital status does not change male too much. We notice two things for male: firstly, the frequency of "watched movie" is decreased from 126 to 69. Secondly, more happy moments come from dinner and family. Compared with single female status, the words like "family" and "dinner" come out more often. Since in the general traditional family, we always think female pay more attention on family, husband and kids. And male focus more on work and job. 
+
+But here, we also notice one intersting thing: the frequency of "dinner family" is decreased after male married but female is clearly increased. Why? Maybe next time when you take dinner with your parents, you can ask your father whether he feel happiness or not. (Be care, do not let your mother hear the question.)
+
+###Summary
+
+![](/Users/SunnyZhao/Documents/GitHub/Fall2018-Proj1-SunnyZhaoly/figs/happymoments.jpg)
+
+By analyzing the happy moments from different people,we should get the following results:
+
+● When we are single, we think "friend","game","home" and "dog" can create more happy moments for us;
+
+● When we get married, family, husband/wife or kids will create more happy moments for us;
+
+● No matter married or single, "friend", "ice cream" and "watch movie" are always important;
+
+● Happy moments for male changed a little from single to married. The most happy moments come from "watched movie", "video game". Family also bring more happy moments for married male, even though the incresment is not significant;
+
+● Happy moments for felmale changed a lot from single to married. The most happy moments are changed from "watch movie", "summer vocation" to high frequency of "husband" as well as "family". 
+
+
+
+
+
+
+
+
